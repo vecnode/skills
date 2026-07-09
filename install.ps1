@@ -14,14 +14,25 @@ Get-ChildItem -Path $skillsSrc -Directory | ForEach-Object {
 
     if (Test-Path $target) {
         $item = Get-Item $target -Force
-        if ($item.LinkType -eq "SymbolicLink") {
+        if ($item.LinkType -eq "SymbolicLink" -or $item.LinkType -eq "Junction") {
             Write-Host "up-to-date  $name"
         } else {
             Write-Host "skip        $name  (exists as real file/dir, remove it manually)"
         }
-    } else {
-        New-Item -ItemType SymbolicLink -Path $target -Target $source | Out-Null
-        Write-Host "linked      $name"
+        return
+    }
+
+    try {
+        New-Item -ItemType SymbolicLink -Path $target -Target $source -ErrorAction Stop | Out-Null
+        Write-Host "linked      $name  (symlink)"
+    } catch {
+        # Symlinks require Administrator or Developer Mode. Junctions don't.
+        try {
+            New-Item -ItemType Junction -Path $target -Target $source -ErrorAction Stop | Out-Null
+            Write-Host "linked      $name  (junction)"
+        } catch {
+            Write-Host "FAILED      $name  ($($_.Exception.Message))"
+        }
     }
 }
 
