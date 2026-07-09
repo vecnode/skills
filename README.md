@@ -22,7 +22,8 @@ skills/
 ```
 skills/                   ← this repo
 ├── skills/               ← skill folders (agent-agnostic source of truth)
-│   └── example-skill/
+│   ├── example-skill/
+│   └── create-pr-and-merge/
 ├── agents/               ← per-agent install notes & quirk docs
 │   └── claude-code.md
 ├── install.sh            ← Unix installer (symlinks into ~/.claude/skills/)
